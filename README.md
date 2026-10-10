@@ -56,6 +56,7 @@ Literature review is token-intensive, so the loop spends fully on the first roun
 
 - **Round 1:** full-breadth survey and full audit.
 - **Rounds 2+:** `literature-researcher` re-verifies only the flagged claims, and `red-team-research` audits only the revised and newly introduced claims.
+
 The orchestrator stops the loop when all of these hold:
 - No claim is Contradicted.
 - Every load-bearing claim is Verified, or is Unverified with a documented reason verification is infeasible (e.g. paywalled paper, dead link). Those are passed on as stated uncertainty and not retried.
@@ -66,6 +67,7 @@ Two guardrails stop the loop regardless:
 - **No-progress exit.** A round that resolves none of the previously flagged claims ends the loop.
 
 `literature-researcher` must list any claim it removes as "withdrawn".
+
 Both loops are adversarial by design: the producing agent (`literature-researcher`, `code`) and the critic (`red-team-research`, `red-team-code`) refine each other, and the critics never write the fix. `debug` is called by the orchestrator outside the loops, for debugging subtasks and runtime errors. `ask` is for you to use directly; the orchestrator does not call it.
 
 Design rules baked into the prompts:
@@ -73,6 +75,9 @@ Design rules baked into the prompts:
 - **Purpose comes from independent sources.** `red-team-code` takes the spec from a ticket, PR description, or your statement, never from the code's own comments.
 - **Planners don't implement or spawn.** `architect` hands its plan back to the orchestrator, which decides what runs next. It lists unverified techniques as open research items and does not research them itself.
 - **Debugging confirms before fixing.** `debug` asks you to confirm the diagnosis before it changes anything.
+- **Null results are valid.** Reviewers and the orchestrator report "no findings" or "no change needed" plainly. A finding requires evidence of actual failure or harm, not a plausible hypothetical.
+- **Producers stay in scope.** `code` implements only the approved plan, `debug` fixes only the reported failure, and `ask` answers only the question. Each reports adjacent observations instead of acting on them. `architect` asks you before adding discovered requirements.
+- **Loops are bounded.** Both loops have round caps and a no-progress exit.
 
 ## Install
 
